@@ -76,6 +76,9 @@ LU_train <- read.csv("LU_train.csv")
 demo_train <- read.csv("demo_train.csv")
 token_train <- read.csv("token_train.csv")
 
+ggLU <- ggplot(LU_train, aes(VISIT, MOT_MLU)) + geom_line()
+ggLU
+
 ```
 
 Explore the 3 datasets (e.g. visualize them, summarize them, etc.). You will see that the data is messy, since the psychologist collected the demographic data, the linguist analyzed the length of utterance in May 2014 and the fumbling jack-of-all-trades analyzed the words several months later. 
