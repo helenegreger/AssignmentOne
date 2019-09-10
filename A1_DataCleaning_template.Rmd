@@ -235,7 +235,10 @@ List all kids who:
 3. have not completed all trials. Tip: Use pipes to solve this
 
 ```{r}
-
+filterMLU2.7 <- filter(df_train, CHI_MLU>2.7)
+filterMLU1.5 <- filter(df_train, CHI_MLU<1.5 & VISIT==1)
+# vi grupperer efter subject so that it knows that it is about the subjects. Then we count how many visits each subject has gone through by counting how many times each subject appear in the dataset. Then we filter out the ones below 6 visits. 
+nocomplete <- group_by(df_train, SUBJ) %>% summarize("number"=n()) %>% filter(number<6)
 
 ```
 
@@ -246,7 +249,11 @@ USING ARRANGE
 2. Sort kids to find the kid who produced the least amount of words on the 1st visit.
 
 ```{r}
+# tokens are words used
+# desc: descending (becoming smaller)
+mostwords <- filter(df_train, VISIT==6) %>% arrange(desc(tokens_CHI))
 
+leastwords <- filter(df_train, VISIT==1) %>% arrange(tokens_CHI)
 
 ```
 
@@ -256,16 +263,24 @@ USING SELECT
 2. What happens if you include the name of a variable multiple times in a select() call?
 
 ```{r}
+subsetting <- subset(df_train, Diagnosis = "ASD") %>% select(CHI_MLU, tokens_CHI)
+
 
 ```
 
 
 USING MUTATE, SUMMARISE and PIPES
 1. Add a column to the data set that represents the mean number of words spoken during all visits.
-2. Use the summarise function and pipes to add an column in the data set containing the mean amount of words produced by each trial across all visits. HINT: group by Child.ID 
+2. Use the summarise function and pipes to add a column in the data set containing the mean amount of words produced by each trial across all visits. HINT: group by Child.ID 
 3. The solution to task above enables us to assess the average amount of words produced by each child. Why don't we just use these average values to describe the language production of the children? What is the advantage of keeping all the data?
 
 ```{r}
+# overall mean words for child
+df_train$meanwords <- mean(df_train$tokens_CHI)
+
+meanCHIwords <- group_by(df_train, SUBJ) %>% summarize("meanCHIwords"=mean(tokens_CHI))
+
+df_train <- merge(df_train, meanCHIwords)
 
 
 ```
