@@ -98,6 +98,10 @@ Tip: look through the chapter on data transformation in R for data science (http
 
 
 ```{r}
+demo_train <- rename(demo_train, SUBJ = Child.ID) # giving the first column the same name for all the three data sets
+demo_train <- rename(demo_train, VISIT = Visit)
+
+
 
 ```
 
@@ -107,7 +111,11 @@ Tip: The stringr package is what you need. str_extract () will allow you to extr
 
 
 ```{r}
+token_train$VISIT <- gsub("[a-zA-Z]", "", token_train$VISIT)
+token_train$VISIT <- gsub("[.]", "", token_train$VISIT)
 
+LU_train$VISIT <- gsub("[a-zA-Z]", "", LU_train$VISIT)
+LU_train$VISIT <- gsub("[.]", "", LU_train$VISIT)
 
 ```
 
@@ -119,7 +127,10 @@ Tip: You can either have one line of code for each child name that is to be chan
 
 
 ```{r}
-
+# removing all dots
+token_train$SUBJ <- gsub("[.]", "", token_train$SUBJ)
+LU_train$SUBJ <- gsub("[.]", "", LU_train$SUBJ)
+demo_train$SUBJ <- gsub("[.]", "", demo_train$SUBJ)
 ```
 
 2d. Now that the nitty gritty details of the different data sets are fixed, we want to make a subset of each data set only containig the variables that we wish to use in the final data set.
@@ -155,7 +166,11 @@ Most variables should make sense, here the less intuitive ones.
 Feel free to rename the variables into something you can remember (i.e. nonVerbalIQ, verbalIQ)
 
 ```{r}
+demo <- select(demo_train, SUBJ, VISIT, Diagnosis, Ethnicity, Gender, Age, ASD_level = ADOS, nonVerbalIQ = MullenRaw, VerbalIQ = ExpressiveLangRaw, Socialization)
 
+LU <-  select(LU_train, SUBJ, VISIT, MOT_MLU, CHI_MLU)
+
+token <- select(token_train, SUBJ, VISIT,  types_MOT, types_CHI, tokens_MOT, tokens_CHI)
 ```
 
 2e. Finally we are ready to merge all the data sets into just one. 
@@ -165,8 +180,8 @@ Some things to pay attention to:
 * make sure to understand whether (and if so why) there are NAs in the dataset (e.g. some measures were not taken at all visits, some recordings were lost or permission to use was withdrawn)
 
 ```{r}
-
-
+merge1 <- merge(demo, LU)
+df_train <- merge(merge1, token)
 ```
 
 
@@ -181,6 +196,9 @@ A possible way to do so:
 
 
 ```{r}
+visit1 <- filter(df_train, VISIT==1)
+visit1 <- select(visit1, SUBJ, ASD_level_1 = ASD_level, nonVerbalIQ_1 = nonVerbalIQ, VerbalIQ_1 = VerbalIQ, Socialization_1 = Socialization)
+df_train <- merge(visit1, df_train)
 
 ```
 
@@ -192,6 +210,15 @@ Now we want to
 * Save the data set using into a csv file. Hint: look into write.csv()
 
 ```{r}
+# star one
+df_train$SUBJ <- as.factor(df_train$SUBJ)
+
+ID<- rep(1:61, 1)
+
+#lav levels ud af den her faktor ud fra listen ID
+levels(df_train$SUBJ)=ID
+
+# star two
 
 ```
 
